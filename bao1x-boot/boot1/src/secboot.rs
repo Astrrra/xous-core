@@ -1,5 +1,7 @@
 use bao1x_api::signatures::FunctionCode;
 
+use crate::platform::irq::disable_all_irqs;
+
 pub const ALLOWED_FUNCTIONS: [u32; 5] = [
     FunctionCode::Baremetal as u32,
     FunctionCode::UpdatedBaremetal as u32,
@@ -41,4 +43,30 @@ pub fn boot_or_die() -> ! {
     }
     crate::println!("No valid loader or baremetal image found. Halting!");
     bao1x_hal::sigcheck::die_no_std();
+}
+
+pub fn boot_or_return() {
+    // loader is at the same offset as baremetal. Accept either as valid boot.
+    // This diverges if the signature check is successful
+    match bao1x_hal::sigcheck::validate_image(
+        bao1x_api::LOADER_START as *const u32,
+        bao1x_api::BOOT1_START as *const u32,
+        bao1x_api::BOOT1_REVOCATION_OFFSET,
+        &ALLOWED_FUNCTIONS,
+        false,
+        None,
+    ) {
+        Ok((k, tag)) => {
+            crate::println!(
+                "Booting image signed with key {}({})",
+                k,
+                core::str::from_utf8(&tag).unwrap_or("invalid tag")
+            );
+            disable_all_irqs();
+            seal_boot1_keys();
+            bao1x_hal::sigcheck::jump_to(bao1x_api::LOADER_START as usize);
+        }
+        Err(e) => crate::println!("Image did not validate: {:?}", e),
+    }
+    crate::println!("No valid loader or baremetal image found.");
 }

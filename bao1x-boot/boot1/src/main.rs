@@ -24,9 +24,9 @@ use platform::*;
 use utralib::*;
 use ux_api::minigfx::{DrawStyle, FrameBuffer, Point, Rectangle};
 
-use crate::platform::usb::glue;
 use crate::secboot::boot_or_die;
 use crate::{delay, platform::irq::disable_all_irqs};
+use crate::{platform::usb::glue, secboot::boot_or_return};
 
 static UART_RX: Mutex<RefCell<VecDeque<u8>>> = Mutex::new(RefCell::new(VecDeque::new()));
 #[allow(dead_code)]
@@ -98,9 +98,9 @@ pub unsafe extern "C" fn rust_entry() -> ! {
     let boot_wait = one_way.get_decoded::<BootWaitCoding>().expect("internal error");
 
     if boot_wait == BootWaitCoding::Disable && current_key.is_none() {
-        disable_all_irqs();
-        // this should diverge, rest of code is not run
-        boot_or_die();
+        // if the image is valid, none of the rest of the code is run
+        // if image is bad, continue on to look for updates
+        boot_or_return();
     }
 
     if boot_wait == BootWaitCoding::Enable {
@@ -287,7 +287,7 @@ pub unsafe extern "C" fn rust_entry() -> ! {
 
     disable_all_irqs();
     // when we get to this point, there's only two options...
-    crate::secboot::boot_or_die();
+    boot_or_die();
 }
 
 pub fn marquee(sh1107: &mut Oled128x128, msg: &str) {
