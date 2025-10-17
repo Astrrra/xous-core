@@ -131,5 +131,17 @@
             }
         },
         "submenu": 1
+    },
+    "ecdh-test": {
+        "context_name": "ecdh-test",
+        "menu_name": {
+            "appmenu.ecdh-test": {
+                "en": "ECDH Test",
+                "en-tts": "ECDH Test",
+                "fr": "ECDH Test",
+                "ja": "ECDH Test",
+                "zh": "ECDH Test"
+            }
+        }
     }
 }

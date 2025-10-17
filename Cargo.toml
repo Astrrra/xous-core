@@ -82,6 +82,7 @@ members = [
   "apps/transientdisk",
   "apps/chat-test",
   "apps/hidv2",
+  "apps/ecdh-test",
   "services/libstd-test",
   "services/ffi-test",
   "services/tts",

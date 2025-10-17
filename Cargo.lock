@@ -1929,6 +1929,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "ecdh-test"
+version = "0.1.0"
+dependencies = [
+ "curve25519-dalek",
+ "gam",
+ "graphics-server",
+ "heapless 0.8.0",
+ "ime-plugin-api",
+ "ime-plugin-shell",
+ "locales",
+ "log",
+ "num-derive 0.3.3",
+ "num-traits",
+ "trng",
+ "x25519-dalek",
+ "xous 0.9.67 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xous-api-log",
+ "xous-api-names",
+ "xous-api-ticktimer",
+ "xous-ipc 0.10.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "ecdsa"
 version = "0.14.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
