@@ -87,6 +87,14 @@ impl EcdhTestUi {
         info!("=== STARTING ECDH TEST ===");
         self.add_message("=== ECDH TEST ===");
 
+        // Acquire hardware engine
+        use curve25519_dalek::backend::serial::u32e::*;
+        self.add_message("Acquiring hardware engine...");
+        while ensure_engine().is_err() {
+            xous::yield_slice();
+        }
+        self.add_message("Hardware engine acquired!");
+
         // Get TRNG
         let xns = xous_names::XousNames::new().unwrap();
         let mut trng = trng::Trng::new(&xns).expect("couldn't get TRNG");
@@ -153,6 +161,10 @@ impl EcdhTestUi {
 
         info!("=== ECDH TEST COMPLETE ===");
         self.add_message("=== TEST COMPLETE ===");
+
+        // Release hardware engine
+        curve25519_dalek::backend::serial::u32e::free_engine();
+        self.add_message("Hardware engine released.");
     }
 
     pub fn redraw(&mut self) -> Result<(), xous::Error> {
