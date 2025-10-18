@@ -1,10 +1,9 @@
 use core::fmt::Write;
+
+use gam::{DrawStyle, Gam, Gid, GlyphStyle, PixelColor, Point, Rectangle, TextBounds, TextView};
 use log::info;
-
-use gam::{Gam, Point, Rectangle, DrawStyle, PixelColor, TextView, TextBounds, GlyphStyle, Gid};
-use xous::String as XousString;
-
 use x25519_dalek::{PublicKey, StaticSecret};
+use xous::String as XousString;
 
 /// Maximum number of messages to keep in history
 const MAX_HISTORY: usize = 20;
@@ -146,6 +145,11 @@ impl EcdhTestUi {
         } else if shared_secret.as_bytes() == our_public.as_bytes() {
             self.add_message("BUG: shared == our_pub!");
             info!("Shared secret equals our public key!");
+        }
+        // Check the first 28 bytes since the last 4 are being corrupted in the buggy case
+        else if shared_secret.as_bytes()[..28] == peer_public.as_bytes()[..28] {
+            self.add_message("BUG: shared[..28] == peer_pub[..28]!");
+            info!("Shared secret (first 28 bytes) equals peer public key (first 28 bytes)!");
         } else {
             self.add_message("OK: shared != any pubkey");
             info!("ECDH output looks correct");
@@ -163,11 +167,7 @@ impl EcdhTestUi {
                 Rectangle::new_with_style(
                     Point::new(0, 0),
                     self.screensize,
-                    DrawStyle {
-                        fill_color: Some(PixelColor::Light),
-                        stroke_color: None,
-                        stroke_width: 0,
-                    },
+                    DrawStyle { fill_color: Some(PixelColor::Light), stroke_color: None, stroke_width: 0 },
                 ),
             )
             .expect("can't clear canvas");
